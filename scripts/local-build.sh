@@ -13,7 +13,11 @@ GIT_TIMEOUT="${GIT_TIMEOUT:-1800}"
 FEEDS_TIMEOUT="${FEEDS_TIMEOUT:-3600}"
 CONFIG_TIMEOUT="${CONFIG_TIMEOUT:-1800}"
 DOWNLOAD_TIMEOUT="${DOWNLOAD_TIMEOUT:-7200}"
-TOOLCHAIN_TIMEOUT="${TOOLCHAIN_TIMEOUT:-7200}"
+# [PATCH] make world 是整条链路里最重的阶段（工具链 + 全部软件包 + 内核）。
+# 在 4 核 runner 且缓存冷启动的情况下，H5000M 的完整构建会超过 2 小时，
+# 原来的 7200s 会在编译中途把 make 杀掉，导致缓存永远存不下来、每次都从头再来。
+# 放宽到 5 小时（作业本身的上限是 10 小时，留有余量）。
+TOOLCHAIN_TIMEOUT="${TOOLCHAIN_TIMEOUT:-18000}"
 COMPILE_TIMEOUT="${COMPILE_TIMEOUT:-28800}"
 V2DAT_TIMEOUT="${V2DAT_TIMEOUT:-3600}"
 GOPROXY="${GOPROXY:-https://goproxy.cn,https://proxy.golang.org,direct}"
