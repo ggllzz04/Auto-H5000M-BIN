@@ -2187,7 +2187,12 @@ EOF
   verify_enabled_pkg "QModem core" "qmodem" "$ENABLE_QMODEM"
   if is_true "$ENABLE_QMODEM_NEXT"; then
     verify_enabled_pkg "QModem-Next LuCI" "luci-app-qmodem-next" true
-    verify_enabled_pkg "QModem-Next zh-cn" "luci-i18n-qmodem-next-zh-cn" true
+    # [PATCH] 上游 qmodem feed 的 i18n 提取 workflow 在 2026-09-15 失败，
+    # 导致 luci-i18n-qmodem-next-zh-cn 未被生成。缺失的只是中文翻译，
+    # 面板本身可正常工作，因此这里降级为警告而非致命错误。
+    if ! grep -q "^CONFIG_PACKAGE_luci-i18n-qmodem-next-zh-cn=y$" .config; then
+      log "WARNING: luci-i18n-qmodem-next-zh-cn 未激活（上游 qmodem i18n 缺失），跳过校验"
+    fi
     verify_enabled_pkg "QModem-Next sms-forwarder-next" "sms-forwarder-next" true
   fi
   if is_true "$ENABLE_QMODEM_LUA"; then
